@@ -47,8 +47,9 @@ def highlight(
     except LLMCallError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    # Save query
-    save_query(req, response)
+    # Save query and get hash
+    query_hash = save_query(req, response)
+    response.hash = query_hash
 
     return response
 

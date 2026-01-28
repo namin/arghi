@@ -11,12 +11,18 @@ interface SentenceScore {
 interface HighlightResponse {
   sentences: SentenceScore[]
   question: string
+  hash?: string
 }
 
 interface SavedQuery {
   hash: string
   question: string
   text_preview: string
+}
+
+function getHashFromUrl(): string | null {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('q')
 }
 
 function scoreToColor(score: number): string {
@@ -88,7 +94,7 @@ function App() {
   }, [])
 
   // Load a saved query
-  const loadSavedQuery = async (hash: string) => {
+  const loadSavedQuery = async (hash: string, updateUrl = true) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/saved/${hash}`)
       if (response.ok) {
@@ -100,12 +106,23 @@ function App() {
         if (data.result) {
           setResult(data.result)
         }
+        if (updateUrl) {
+          window.history.pushState({}, '', `?q=${hash}`)
+        }
         setShowSaved(false)
       }
-    } catch (e) {
+    } catch {
       setError('Failed to load saved query')
     }
   }
+
+  // Load from URL on mount
+  useEffect(() => {
+    const hash = getHashFromUrl()
+    if (hash) {
+      loadSavedQuery(hash, false)
+    }
+  }, [])
 
   const handleHighlight = async () => {
     if (!text.trim() || !question.trim()) {
@@ -138,6 +155,10 @@ function App() {
 
       const data = await response.json()
       setResult(data)
+      // Update URL with hash
+      if (data.hash) {
+        window.history.pushState({}, '', `?q=${data.hash}`)
+      }
       // Refresh saved queries list
       fetchSavedQueries()
     } catch (e) {

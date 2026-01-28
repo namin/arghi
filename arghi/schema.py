@@ -18,3 +18,4 @@ class SentenceScore(BaseModel):
 class HighlightResponse(BaseModel):
     sentences: list[SentenceScore]
     question: str
+    hash: Optional[str] = None
