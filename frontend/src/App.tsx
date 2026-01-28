@@ -13,18 +13,36 @@ interface HighlightResponse {
   question: string
 }
 
+interface SavedQuery {
+  hash: string
+  question: string
+  text_preview: string
+}
+
 function scoreToColor(score: number): string {
   // Map 0-1 score to a color gradient
-  // Low scores: nearly transparent
-  // High scores: warm orange/red
+  // Low scores: nearly transparent / pale yellow
+  // Medium scores: orange/amber
+  // High scores: green
   if (score < 0.1) return 'transparent'
 
-  // Interpolate from light yellow to deep orange/red
-  const hue = 60 - (score * 50) // 60 (yellow) to 10 (red-orange)
-  const saturation = 80 + (score * 20) // 80% to 100%
-  const lightness = 95 - (score * 35) // 95% to 60%
-
-  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
+  // Use distinct color stops:
+  // 0.1-0.4: pale yellow
+  // 0.4-0.7: orange/amber
+  // 0.7-1.0: green
+  if (score < 0.4) {
+    // Pale yellow
+    const intensity = (score - 0.1) / 0.3
+    return `hsl(50, 80%, ${92 - intensity * 12}%)`
+  } else if (score < 0.7) {
+    // Orange/amber
+    const intensity = (score - 0.4) / 0.3
+    return `hsl(30, 95%, ${75 - intensity * 15}%)`
+  } else {
+    // Green
+    const intensity = (score - 0.7) / 0.3
+    return `hsl(140, 70%, ${65 - intensity * 20}%)`
+  }
 }
 
 function App() {
@@ -35,6 +53,8 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [hoveredSentence, setHoveredSentence] = useState<number | null>(null)
+  const [savedQueries, setSavedQueries] = useState<SavedQuery[]>([])
+  const [showSaved, setShowSaved] = useState(false)
 
   // Load API key from localStorage
   useEffect(() => {
@@ -48,6 +68,44 @@ function App() {
       localStorage.setItem('arghi:apikey', apiKey)
     }
   }, [apiKey])
+
+  // Fetch saved queries
+  const fetchSavedQueries = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/saved`)
+      if (response.ok) {
+        const data = await response.json()
+        setSavedQueries(data.queries || [])
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  // Load saved queries on mount
+  useEffect(() => {
+    fetchSavedQueries()
+  }, [])
+
+  // Load a saved query
+  const loadSavedQuery = async (hash: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/saved/${hash}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.query) {
+          setText(data.query.text || '')
+          setQuestion(data.query.question || '')
+        }
+        if (data.result) {
+          setResult(data.result)
+        }
+        setShowSaved(false)
+      }
+    } catch (e) {
+      setError('Failed to load saved query')
+    }
+  }
 
   const handleHighlight = async () => {
     if (!text.trim() || !question.trim()) {
@@ -80,6 +138,8 @@ function App() {
 
       const data = await response.json()
       setResult(data)
+      // Refresh saved queries list
+      fetchSavedQueries()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')
     } finally {
@@ -90,10 +150,47 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">arghi</h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl font-bold text-gray-800">arghi</h1>
+          <button
+            onClick={() => setShowSaved(!showSaved)}
+            className="text-sm text-blue-600 hover:text-blue-800 underline"
+          >
+            {showSaved ? 'Hide' : 'Show'} saved queries ({savedQueries.length})
+          </button>
+        </div>
         <p className="text-gray-600 mb-6">
           Highlight text relevance as a heatmap. Paste text, ask a question, see what's relevant.
         </p>
+
+        {/* Saved queries panel */}
+        {showSaved && savedQueries.length > 0 && (
+          <div className="mb-6 p-4 bg-white border border-gray-200 rounded-md shadow-sm">
+            <h3 className="font-medium text-gray-800 mb-3">Saved Queries</h3>
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {savedQueries.map((q) => (
+                <button
+                  key={q.hash}
+                  onClick={() => loadSavedQuery(q.hash)}
+                  className="w-full text-left p-3 bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"
+                >
+                  <div className="font-medium text-gray-800 truncate">
+                    {q.question || '(no question)'}
+                  </div>
+                  <div className="text-sm text-gray-500 truncate">
+                    {q.text_preview}...
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {showSaved && savedQueries.length === 0 && (
+          <div className="mb-6 p-4 bg-gray-100 border border-gray-200 rounded-md text-gray-600 text-sm">
+            No saved queries yet. Run a highlight to save it.
+          </div>
+        )}
 
         {/* API Key */}
         <div className="mb-4">
@@ -167,15 +264,15 @@ function App() {
             <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
               <span>Relevance:</span>
               <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.1) }}></div>
+                <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: scoreToColor(0.25) }}></div>
                 <span>Low</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.5) }}></div>
+                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.55) }}></div>
                 <span>Medium</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(1.0) }}></div>
+                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.9) }}></div>
                 <span>High</span>
               </div>
             </div>
