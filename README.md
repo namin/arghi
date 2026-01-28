@@ -34,14 +34,14 @@ npm run dev
 
 Open http://localhost:5173
 
-### Option 2: Production build
+### Production
 
 ```bash
-cd frontend
-npm run build
+cd frontend && npm run build
+uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
-Then serve the `frontend/dist` directory with your preferred static server, and run the backend separately.
+Serve `frontend/dist` as static files and proxy `/api` to the backend.
 
 ## Configuration
 
