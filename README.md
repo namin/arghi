@@ -97,7 +97,8 @@ Response:
     {"index": 0, "text": "First sentence.", "score": 0.2, "rationale": "Background info"},
     {"index": 1, "text": "Key finding here.", "score": 0.9, "rationale": "Directly answers question"}
   ],
-  "question": "What is the main finding?"
+  "question": "What is the main finding?",
+  "hash": "a1b2c3d4e5f6"
 }
 ```
 
