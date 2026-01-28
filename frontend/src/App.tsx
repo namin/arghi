@@ -216,7 +216,7 @@ function App() {
         {/* API Key */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Gemini API Key (or set GOOGLE_CLOUD_PROJECT on server)
+            Gemini API Key (optional)
           </label>
           <input
             type="password"
