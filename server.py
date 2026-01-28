@@ -29,12 +29,35 @@ def health():
     return {"status": "ok"}
 
 
+def get_query_hash(text: str, question: str) -> str:
+    """Compute hash for a query."""
+    query_str = f"{text}|{question}"
+    return hashlib.sha256(query_str.encode()).hexdigest()[:12]
+
+
+def get_cached_result(query_hash: str) -> Optional[HighlightResponse]:
+    """Check if results already exist for this query."""
+    results_file = Path("saved-results") / f"{query_hash}.json"
+    if results_file.exists():
+        with open(results_file) as f:
+            data = json.load(f)
+        return HighlightResponse(**data)
+    return None
+
+
 @app.post("/api/highlight", response_model=HighlightResponse)
 def highlight(
     req: HighlightRequest,
     x_api_key: Optional[str] = Header(None),
 ):
     """Highlight text segments relevant to a question."""
+    # Check for cached results first
+    query_hash = get_query_hash(req.text, req.question)
+    cached = get_cached_result(query_hash)
+    if cached:
+        cached.hash = query_hash
+        return cached
+
     # Set API key from header or body
     api_key = x_api_key or req.api_key
     if api_key:
