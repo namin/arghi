@@ -172,7 +172,16 @@ function App() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-3xl font-bold text-gray-800">arghi</h1>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/namin/arghi"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <img src="/github-mark.png" alt="GitHub" className="w-6 h-6" />
+            </a>
+            <h1 className="text-3xl font-bold text-gray-800">arghi</h1>
+          </div>
           <button
             onClick={() => setShowSaved(!showSaved)}
             className="text-sm text-blue-600 hover:text-blue-800 underline"
