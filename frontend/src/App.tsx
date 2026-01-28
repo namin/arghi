@@ -45,9 +45,9 @@ function scoreToColor(score: number): string {
     const intensity = (score - 0.4) / 0.3
     return `hsl(30, 95%, ${75 - intensity * 15}%)`
   } else {
-    // Green
+    // Fluorescent/bright green
     const intensity = (score - 0.7) / 0.3
-    return `hsl(140, 70%, ${65 - intensity * 20}%)`
+    return `hsl(120, 85%, ${75 - intensity * 15}%)`
   }
 }
 
