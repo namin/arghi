@@ -281,20 +281,35 @@ function App() {
               Question: <span className="font-medium">{result.question}</span>
             </p>
 
-            {/* Legend */}
-            <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
-              <span>Relevance:</span>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: scoreToColor(0.25) }}></div>
-                <span>Low</span>
+            {/* Legend and hover info row */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <span>Relevance:</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: scoreToColor(0.25) }}></div>
+                  <span>Low</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.55) }}></div>
+                  <span>Medium</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.9) }}></div>
+                  <span>High</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.55) }}></div>
-                <span>Medium</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.9) }}></div>
-                <span>High</span>
+              {/* Inline hover info */}
+              <div className="text-sm text-gray-600 min-w-[200px] text-right">
+                {hoveredSentence !== null && result.sentences[hoveredSentence] ? (
+                  <span>
+                    <span className="font-medium">Score: {result.sentences[hoveredSentence].score.toFixed(2)}</span>
+                    {result.sentences[hoveredSentence].rationale && (
+                      <span className="text-gray-500"> — {result.sentences[hoveredSentence].rationale}</span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="text-gray-400">Hover over text to see details</span>
+                )}
               </div>
             </div>
 
@@ -314,20 +329,6 @@ function App() {
                 ))}
               </div>
             </div>
-
-            {/* Tooltip for hovered sentence */}
-            {hoveredSentence !== null && result.sentences[hoveredSentence] && (
-              <div className="mt-4 p-3 bg-gray-800 text-white rounded-md text-sm">
-                <div className="font-medium mb-1">
-                  Score: {result.sentences[hoveredSentence].score.toFixed(2)}
-                </div>
-                {result.sentences[hoveredSentence].rationale && (
-                  <div className="text-gray-300">
-                    {result.sentences[hoveredSentence].rationale}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
       </div>
