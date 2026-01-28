@@ -66,8 +66,17 @@ export GOOGLE_CLOUD_LOCATION=us-central1  # optional, defaults to us-central1
 2. Type a question you want answered from the text
 3. Paste your text (article, paper, document)
 4. Click "Highlight Relevance"
-5. View the heatmap - warmer colors indicate higher relevance
+5. View the heatmap:
+   - **Yellow** = low relevance
+   - **Orange** = medium relevance
+   - **Green** = high relevance
 6. Hover over sentences to see scores and rationales
+
+## Features
+
+- **Permalinks**: Each query gets a unique URL (`?q=hash`) - share or bookmark results
+- **Saved queries**: Click "Show saved queries" to browse and reload past queries
+- **Hover details**: See the exact relevance score and LLM rationale for each sentence
 
 ## API
 
