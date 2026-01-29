@@ -290,36 +290,34 @@ function App() {
               Question: <span className="font-medium">{result.question}</span>
             </p>
 
-            {/* Legend and hover info row */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <span>Relevance:</span>
-                <div className="flex items-center gap-1">
-                  <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: scoreToColor(0.25) }}></div>
-                  <span>Low</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.55) }}></div>
-                  <span>Medium</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.9) }}></div>
-                  <span>High</span>
-                </div>
+            {/* Legend */}
+            <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+              <span>Relevance:</span>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 rounded border border-gray-300" style={{ backgroundColor: scoreToColor(0.25) }}></div>
+                <span>Low</span>
               </div>
-              {/* Inline hover info */}
-              <div className="text-sm text-gray-600 min-w-[200px] text-right">
-                {hoveredSentence !== null && result.sentences[hoveredSentence] ? (
-                  <span>
-                    <span className="font-medium">Score: {result.sentences[hoveredSentence].score.toFixed(2)}</span>
-                    {result.sentences[hoveredSentence].rationale && (
-                      <span className="text-gray-500"> — {result.sentences[hoveredSentence].rationale}</span>
-                    )}
-                  </span>
-                ) : (
-                  <span className="text-gray-400">Hover over text to see details</span>
-                )}
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.55) }}></div>
+                <span>Medium</span>
               </div>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 rounded" style={{ backgroundColor: scoreToColor(0.9) }}></div>
+                <span>High</span>
+              </div>
+            </div>
+            {/* Hover info - fixed height to prevent layout shift */}
+            <div className="text-sm text-gray-600 mb-4 h-6">
+              {hoveredSentence !== null && result.sentences[hoveredSentence] ? (
+                <span>
+                  <span className="font-medium">Score: {result.sentences[hoveredSentence].score.toFixed(2)}</span>
+                  {result.sentences[hoveredSentence].rationale && (
+                    <span className="text-gray-500"> — {result.sentences[hoveredSentence].rationale}</span>
+                  )}
+                </span>
+              ) : (
+                <span className="text-gray-400">Hover over text to see details</span>
+              )}
             </div>
 
             {/* Highlighted text */}
@@ -328,7 +326,7 @@ function App() {
                 {result.sentences.map((s, i) => (
                   <span
                     key={i}
-                    className="cursor-pointer rounded px-0.5 transition-all"
+                    className="cursor-pointer rounded px-0.5"
                     style={{ backgroundColor: scoreToColor(s.score) }}
                     onMouseEnter={() => setHoveredSentence(i)}
                     onMouseLeave={() => setHoveredSentence(null)}
